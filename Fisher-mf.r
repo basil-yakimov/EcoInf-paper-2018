@@ -133,5 +133,18 @@ points(N, qD[, q == 0], pch = 22, bg = "darkolivegreen1")
 
 #---#
 
+# compute local multifractal spectra
+source("ecomf.r")
+mls <- local.spectra(list(q = q, a = N, mom = m, H = H, qD = qD), sc = sc, smooth = spar)
 
+# Figure 4
+plot(mls$alfa[,1], mls$f[,1], pch = 21, bg = "grey", type = "o", 
+     xlim = c(0, 1), ylim = range(0,mls$f), xlab = "a", ylab = "f(a)")
+points(mls$alfa[,2], mls$f[,2], pch = 21, bg = "red", type = "o")
+points(mls$alfa[,3], mls$f[,3], pch = 21, bg = "blue", type = "o")
+points(mls$alfa[,4], mls$f[,4], pch = 21, bg = "black", type = "o")
 
+abline(h = 0, v = 0:1, col = "grey")
+
+legend("topleft", legend = c("N = 100", "N = 464", "N = 2154", "N = 10000"),
+       pt.bg = c("grey", "red", "blue", "black"), lwd = 1, pch = 21)
