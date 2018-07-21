@@ -20,7 +20,7 @@ barplot(si, beside = T, col = c("grey", "red", "blue", "black"), names = 1:10,
 legend("topright", legend = c("N = 100", "N = 464", "N = 2154", "N = 10000"),
        fill = c("grey", "red", "blue", "black"), bty = "n")
 
-# Fifure 2b
+# Figure 2b
 plot(fish4, log = "xy", type = "l", lwd = 3, col = "black",
      xlab = "n", ylab = expression(s[n]), bty = "L")
 points(fish3, type = "l", lwd = 3, col = "blue")
@@ -61,4 +61,77 @@ qD <- m ^ (1/(1-matrix(q, nrow = 20, ncol = length(q), byrow = T)))
 qD[, q == 1] <- exp(H)
 
 #---#
+
+# init matrices for moments and diversities on 4 local scales
+m4 <- qD4 <- matrix(0, nrow = 4, ncol = length(q))
+H4 <- H[1:4]
+
+# compute moments and diversities on local scales
+for (ii in 1:4)
+{
+  nn <- 1:sc[ii]
+  x <- sc[ii]/(sc[ii]+a)
+  s <- a*x^nn/nn
+  
+  for (jj in 1:length(q))
+  {
+    m4[ii,jj] <- sum(s*(nn/sc[ii])^q[jj])
+  }
+  
+  pp <- nn/sc[ii]
+  H4[ii] <- -sum(pp*log(pp)*s)
+}
+
+qD4 <- m4 ^ (1/(1-matrix(q, nrow = 4, ncol = length(q), byrow = T)))
+qD4[, q == 1] <- exp(H4)
+
+#---#
+
+# Figure 3a
+library(rgl)
+persp3d(x = log(N), y = q, z = log(qD), col = "skyblue")
+
+# Figure 3b
+ind <- c(F,F,F,F,T)
+
+plot(q[ind], qD4[4,ind], type = "o", log = "y", pch = 21, bg = "black",
+     xlab = "q", ylab = expression("log "^q*D))
+lines(q[ind], qD4[3,ind], type = "o", pch = 21, bg = "blue")
+lines(q[ind], qD4[2,ind], type = "o", pch = 21, bg = "red")
+lines(q[ind], qD4[1,ind], type = "o", pch = 21, bg = "grey")
+
+legend("topright", legend = c("N = 100", "N = 464", "N = 2154", "N = 10000"),
+       pt.bg = c("grey", "red", "blue", "black"), lwd = 1, pch = 21)
+
+# Figure 3c
+plot(N, qD[, q == -2], type = "o", log = "xy", ylim = c(5, max(qD[,q == -2])), 
+     pch = 21, bg = "wheat", xlab = "N", ylab = expression("log "^q*D))
+lines(N, qD[, q == 0], type = "o", pch = 22, bg = "darkolivegreen1")
+lines(N, qD[, q == 2], type = "o", pch = 23, bg = "darkseagreen1")
+lines(N, qD[, q == 5], type = "o", pch = 24, bg = "lavender")
+
+abline(v = sc, col = c("grey", "red", "blue", "black"))
+legend("topleft", legend = c("q = -2", "q = 0", "q = 2", "q = 5"),
+       pt.bg = c("wheat", "darkolivegreen1", "darkseagreen1", "lavender"), 
+       lwd = 1, pch = 21:24)
+
+spar <- 0.5
+spl <- smooth.spline(x = log(N), y = log(qD[, q == 0]), spar = spar, tol = .0001)
+lin <- predict(spl)
+
+lin1 <- predict(spl, x = log(sc[1]))
+der1 <- predict(spl, deriv = 1, x = log(sc[1]))
+xx <- log(10^c(1.5,2.8))
+lines(exp(xx), exp(der1$y*xx + lin1$y-der1$y*lin1$x), lwd = 2, col = "grey", lty = 1)
+
+lin4 <- predict(spl, x = log(sc[4]))
+der4 <- predict(spl, deriv = 1, x = log(sc[4]))
+xx <- log(10^c(3,4.5))
+lines(exp(xx), exp(der4$y*xx + lin4$y-der4$y*lin4$x), lwd = 2, col = "black", lty = 1)
+
+points(N, qD[, q == 0], pch = 22, bg = "darkolivegreen1")
+
+#---#
+
+
 
