@@ -1,0 +1,1 @@
+# Local multifractal analysis of a Fisher log-series model
