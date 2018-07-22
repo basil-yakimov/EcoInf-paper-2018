@@ -48,8 +48,6 @@ derv <- function(vec,h)
 
 #' A function to compute moments with a linear transect
 #' @param ab vector of abundances
-#' @param cv vector of coverages
-#' @param ht vector of heights
 #' @param q vector of orders
 
 compute.moments.lin <- function(ab, q)
@@ -59,6 +57,7 @@ compute.moments.lin <- function(ab, q)
   nn <- sum(1:n)  # nr of cells
   
   m <- qD <- matrix(0, nrow = nn, ncol = length(q))
+  pp <- matrix(0, nrow = nn, ncol = dim(ab)[2])
   a <- rep(0, nn)
   H <- rep(0, nn)
   pmin <- nmin <- rep(0, nn)
@@ -78,6 +77,8 @@ compute.moments.lin <- function(ab, q)
       {
         p <- aa/sum(aa)
         
+        pp[counter,] <- p
+        
         m[counter,] <- mom(p,q)
         a[counter] <- ii
         H[counter] <- shannon(p)
@@ -91,6 +92,8 @@ compute.moments.lin <- function(ab, q)
   aa <- colSums(ab)
   p <- aa/sum(aa)
   
+  pp[counter, ] <- p
+  
   m[counter,] <- mom(p,q)
   a[counter] <- n
   H[counter] <- shannon(p)
@@ -100,8 +103,9 @@ compute.moments.lin <- function(ab, q)
   qD <- m ^ (1/(1-matrix(q, nrow = dim(m)[1], ncol = dim(m)[2], byrow = T)))
   qD[, q == 1] <- exp(H)
   
-  return(list(mom = m[1:counter,], H = H[1:counter], qD = qD[1:counter,], 
-              a = a[1:counter], q = q, pmin = pmin[1:counter], nmin = nmin[1:counter]))
+  return(list(mom = m[1:counter, ], H = H[1:counter], qD = qD[1:counter, ], 
+              a = a[1:counter], q = q, pmin = pmin[1:counter], nmin = nmin[1:counter],
+              pp = pp[1:counter, ]))
 }
 
 #' A function to compute global multifractal spectrum

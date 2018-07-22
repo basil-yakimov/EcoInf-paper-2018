@@ -3,26 +3,24 @@
 source("ecomf.r")
 
 # loading plain forest data
-load("D:/YandexDisk/Science/2016/China/R/ank-tree.rda")
-load("D:/YandexDisk/Science/2016/China/R/ank-herbs.rda")
-hc <- t(hc)
-rm(sc, sh, tc, th)
-ta <- ta[-51, ]
-sa <- sa[-51, ]
-hc <- hc[-51, ]
+library(readxl)
+# r is for russian plain forest, tsh stands for tree, shrub and herb layers respectively
+rt <- t(read_excel("Forest_data.xlsx", sheet = 1, range = "B2:CW12", col_names = F))
+rs <- t(read_excel("Forest_data.xlsx", sheet = 2, range = "B2:CW11", col_names = F))
+rh <- t(read_excel("Forest_data.xlsx", sheet = 3, range = "B2:CW44", col_names = F))
 
 # compute moments with a linear scheme
-m.at <- compute.moments.lin(ta, q = seq(-3, 3, .1))
-m.as <- compute.moments.lin(sa, q = seq(-3, 3, .1))
-m.ah <- compute.moments.lin(hc, q = seq(-3, 3, .1))
+m.rt <- compute.moments.lin(rt, q = seq(-3, 3, .1))
+m.rs <- compute.moments.lin(rs, q = seq(-3, 3, .1))
+m.rh <- compute.moments.lin(rh, q = seq(-3, 3, .1))
 
 #--- diversity scaling plots in the plain forest ---#
 
 # Figure 5a
-ind <- m.at$q == 0
+ind <- m.rt$q == 0
 
-xx <- log(m.at$a*10)
-yy <- log(m.at$qD[, ind])
+xx <- log(m.rt$a*10)
+yy <- log(m.rt$qD[, ind])
 
 plot(exp(xx), exp(yy), pch = 19, col = rgb(.7, .9, .7, .5), log = "xy",
      xlab = "L", ylab = expression(''^0*D))
@@ -33,10 +31,10 @@ lines(exp(spl$x), exp(spl$y), lwd = 2, col = "red")
 abline(v = 10*exp(1:4), col = c("grey", "red", "blue", "black"))
 
 # Figure 5b
-ind <- m.at$q == 3
+ind <- m.rt$q == 3
 
-xx <- log(m.at$a*10)
-yy <- log(m.at$qD[, ind])
+xx <- log(m.rt$a*10)
+yy <- log(m.rt$qD[, ind])
 
 plot(exp(xx), exp(yy), pch = 19, col = rgb(.7, .9, .7, .5), log = "xy",
      xlab = "L", ylab = expression(''^3*D))
@@ -47,10 +45,10 @@ lines(exp(spl$x), exp(spl$y), lwd = 2, col = "red")
 abline(v = 10*exp(1:4), col = c("grey", "red", "blue", "black"))
 
 # Figure 5c
-ind <- m.ah$q == 0
+ind <- m.rh$q == 0
 
-xx <- log(m.ah$a*10)
-yy <- log(m.ah$qD[, ind])
+xx <- log(m.rh$a*10)
+yy <- log(m.rh$qD[, ind])
 
 plot(exp(xx), exp(yy), pch = 19, col = rgb(.7, .9, .7, .5), log = "xy",
      xlab = "L", ylab = expression(''^0*D))
@@ -61,10 +59,10 @@ lines(exp(spl$x), exp(spl$y), lwd = 2, col = "red")
 abline(v = 10*exp(1:4), col = c("grey", "red", "blue", "black"))
 
 # Figure 5d
-ind <- m.ah$q == 3
+ind <- m.rh$q == 3
 
-xx <- log(m.ah$a*10)
-yy <- log(m.ah$qD[, ind])
+xx <- log(m.rh$a*10)
+yy <- log(m.rh$qD[, ind])
 
 plot(exp(xx), exp(yy), pch = 19, col = rgb(.7, .9, .7, .5), log = "xy",
      xlab = "L", ylab = expression(''^3*D))
@@ -77,74 +75,75 @@ abline(v = 10*exp(1:4), col = c("grey", "red", "blue", "black"))
 #---#
 
 # load mountain forest data
-load("D:/YandexDisk/Science/2016/China/R/DLS.rda")
+# c is for chinese mountain forest, tsh stands for tree, shrub and herb layers respectively
+ct <- t(read_excel("Forest_data.xlsx", sheet = 4, range = "B2:CS21", col_names = F))
+cs <- t(read_excel("Forest_data.xlsx", sheet = 5, range = "B2:CS42", col_names = F))
+ch <- t(read_excel("Forest_data.xlsx", sheet = 6, range = "B2:CS194", col_names = F))
 
 # compute moments
-m.dt <- compute.moments.lin(ta, q = seq(-3,3,.1))
-m.ds <- compute.moments.lin(sa, q = seq(-3,3,.1))
-m.dh <- compute.moments.lin(hc, q = seq(-3,3,.1))
+m.ct <- compute.moments.lin(ta, q = seq(-3,3,.1))
+m.cs <- compute.moments.lin(sa, q = seq(-3,3,.1))
+m.ch <- compute.moments.lin(hc, q = seq(-3,3,.1))
 
 #---#
 
 # compute and truncate local spectra
-mfl.at <- trunc.spectra(local.spectra(m.at, sc = exp(1:4), smooth = 1.15))
-mfl.as <- local.spectra(m.as, sc = exp(1:4), smooth = 1.15)
-mfl.ah <- trunc.spectra(local.spectra(m.ah, sc = exp(1:4), smooth = 1.15))
+mfl.rt <- trunc.spectra(local.spectra(m.rt, sc = exp(1:4), smooth = 1.15))
+mfl.rs <- local.spectra(m.rs, sc = exp(1:4), smooth = 1.15)
+mfl.rh <- trunc.spectra(local.spectra(m.rh, sc = exp(1:4), smooth = 1.15))
 
-mfl.dt <- local.spectra(m.dt, sc = exp(1:4), smooth = 1.15)
-mfl.dt <- trunc.spectra(local.spectra(m.dt, sc = exp(1:4), smooth = 1.15))
-mfl.ds <- local.spectra(m.ds, sc = exp(1:4), smooth = 1.15)
-mfl.dh <- local.spectra(m.dh, sc = exp(1:4), smooth = 1.15)
-mfl.dh <- trunc.spectra(local.spectra(m.dh, sc = exp(1:4), smooth = 1.15))
+mfl.ct <- trunc.spectra(local.spectra(m.ct, sc = exp(1:4), smooth = 1.15))
+mfl.cs <- local.spectra(m.cs, sc = exp(1:4), smooth = 1.15)
+mfl.ch <- trunc.spectra(local.spectra(m.ch, sc = exp(1:4), smooth = 1.15))
 
 #--- local multifractal spectra plots ---#
 
 # Figure 6a
-plot(mfl.at$alfa[,1], mfl.at$f[,1], type = "o", pch = 21, bg = "white", 
+plot(mfl.rt$alfa[,1], mfl.rt$f[,1], type = "o", pch = 21, bg = "white", 
      ylim = c(-0.2, 0.55), xlim = range(-0.05, 1.5), xlab = "a", ylab = "f")
-points(mfl.at$alfa[,2], mfl.at$f[,2], type = "o", pch = 22, bg = "red")
-points(mfl.at$alfa[,3], mfl.at$f[,3], type = "o", pch = 24, bg = "blue")
-points(mfl.at$alfa[,4], mfl.at$f[,4], type = "o", pch = 21, bg = "black")
+points(mfl.rt$alfa[,2], mfl.rt$f[,2], type = "o", pch = 22, bg = "red")
+points(mfl.rt$alfa[,3], mfl.rt$f[,3], type = "o", pch = 24, bg = "blue")
+points(mfl.rt$alfa[,4], mfl.rt$f[,4], type = "o", pch = 21, bg = "black")
 abline(h = 0, v = 0)
 abline(v = 1, lty = 2)
 title(main = "Plain forest - tree layer", line = 0.25)
 
 # Figure 6b
-plot(mfl.dt$alfa[,1], mfl.dt$f[,1], type = "o", pch = 21, bg = "white", 
+plot(mfl.ct$alfa[,1], mfl.ct$f[,1], type = "o", pch = 21, bg = "white", 
      ylim = c(-0.2, 0.55), xlim = range(-0.05, 1.5), xlab = "a", ylab = "f")
-points(mfl.dt$alfa[,2], mfl.dt$f[,2], type = "o", pch = 22, bg = "red")
-points(mfl.dt$alfa[,3], mfl.dt$f[,3], type = "o", pch = 24, bg = "blue")
-points(mfl.dt$alfa[,4], mfl.dt$f[,4], type = "o", pch = 21, bg = "black")
+points(mfl.ct$alfa[,2], mfl.ct$f[,2], type = "o", pch = 22, bg = "red")
+points(mfl.ct$alfa[,3], mfl.ct$f[,3], type = "o", pch = 24, bg = "blue")
+points(mfl.ct$alfa[,4], mfl.ct$f[,4], type = "o", pch = 21, bg = "black")
 abline(h = 0, v = 0)
 abline(v = 1, lty = 2)
 title(main = "Mountain forest - tree layer", line = 0.25)
 
 # Figure 6c
-plot(mfl.as$alfa[,1], mfl.as$f[,1], type = "o", pch = 21, bg = "white", 
+plot(mfl.rs$alfa[,1], mfl.rs$f[,1], type = "o", pch = 21, bg = "white", 
      ylim = c(-0.45, 0.45), xlim = range(-0.05, 1.5), xlab = "a", ylab = "f")
-points(mfl.as$alfa[,2], mfl.as$f[,2], type = "o", pch = 22, bg = "red")
-points(mfl.as$alfa[,3], mfl.as$f[,3], type = "o", pch = 24, bg = "blue")
-points(mfl.as$alfa[,4], mfl.as$f[,4], type = "o", pch = 21, bg = "black")
+points(mfl.rs$alfa[,2], mfl.rs$f[,2], type = "o", pch = 22, bg = "red")
+points(mfl.rs$alfa[,3], mfl.rs$f[,3], type = "o", pch = 24, bg = "blue")
+points(mfl.rs$alfa[,4], mfl.rs$f[,4], type = "o", pch = 21, bg = "black")
 abline(h = 0, v = 0)
 abline(v = 1, lty = 2)
 title(main = "Plain forest - shrub layer", line = 0.25)
 
 # Figure 6d
-plot(mfl.ds$alfa[,1], mfl.ds$f[,1], type = "o", pch = 21, bg = "white", 
+plot(mfl.cs$alfa[,1], mfl.cs$f[,1], type = "o", pch = 21, bg = "white", 
      ylim = c(-0.45, 0.45), xlim = range(-0.05, 1.5), xlab = "a", ylab = "f")
-points(mfl.ds$alfa[,2], mfl.ds$f[,2], type = "o", pch = 22, bg = "red")
-points(mfl.ds$alfa[,3], mfl.ds$f[,3], type = "o", pch = 24, bg = "blue")
-points(mfl.ds$alfa[,4], mfl.ds$f[,4], type = "o", pch = 21, bg = "black")
+points(mfl.cs$alfa[,2], mfl.cs$f[,2], type = "o", pch = 22, bg = "red")
+points(mfl.cs$alfa[,3], mfl.cs$f[,3], type = "o", pch = 24, bg = "blue")
+points(mfl.cs$alfa[,4], mfl.cs$f[,4], type = "o", pch = 21, bg = "black")
 abline(h = 0, v = 0)
 abline(v = 1, lty = 2)
 title(main = "Mountain forest - shrub layer", line = 0.25)
 
 # Figure 6e
-plot(mfl.ah$alfa[,1], mfl.ah$f[,1], type = "o", pch = 21, bg = "white", 
+plot(mfl.rh$alfa[,1], mfl.rh$f[,1], type = "o", pch = 21, bg = "white", 
      ylim = c(-0.45, 0.55), xlim = range(-0.05, 1.5), xlab = "a", ylab = "f")
-points(mfl.ah$alfa[,2], mfl.ah$f[,2], type = "o", pch = 22, bg = "red")
-points(mfl.ah$alfa[,3], mfl.ah$f[,3], type = "o", pch = 24, bg = "blue")
-points(mfl.ah$alfa[,4], mfl.ah$f[,4], type = "o", pch = 21, bg = "black")
+points(mfl.rh$alfa[,2], mfl.rh$f[,2], type = "o", pch = 22, bg = "red")
+points(mfl.rh$alfa[,3], mfl.rh$f[,3], type = "o", pch = 24, bg = "blue")
+points(mfl.rh$alfa[,4], mfl.rh$f[,4], type = "o", pch = 21, bg = "black")
 abline(h = 0, v = 0)
 abline(v = 1, lty = 2)
 legend("topright", legend = paste0("L = ", round(10*exp(1:4))), 
@@ -152,11 +151,11 @@ legend("topright", legend = paste0("L = ", round(10*exp(1:4))),
 title(main = "Plain forest - herb layer", line = 0.25)
 
 # Figure 6f
-plot(mfl.dh$alfa[,1], mfl.dh$f[,1], type = "o", pch = 21, bg = "white", 
+plot(mfl.ch$alfa[,1], mfl.ch$f[,1], type = "o", pch = 21, bg = "white", 
      ylim = c(-0.45, 0.55), xlim = range(-0.05, 1.5), xlab = "a", ylab = "f")
-points(mfl.dh$alfa[,2], mfl.dh$f[,2], type = "o", pch = 22, bg = "red")
-points(mfl.dh$alfa[,3], mfl.dh$f[,3], type = "o", pch = 24, bg = "blue")
-points(mfl.dh$alfa[,4], mfl.dh$f[,4], type = "o", pch = 21, bg = "black")
+points(mfl.ch$alfa[,2], mfl.ch$f[,2], type = "o", pch = 22, bg = "red")
+points(mfl.ch$alfa[,3], mfl.ch$f[,3], type = "o", pch = 24, bg = "blue")
+points(mfl.ch$alfa[,4], mfl.ch$f[,4], type = "o", pch = 21, bg = "black")
 abline(h = 0, v = 0)
 abline(v = 1, lty = 2)
 title(main = "Mountain forest - herb layer", line = 0.25)
@@ -166,20 +165,17 @@ title(main = "Mountain forest - herb layer", line = 0.25)
 # Figure 7
 spar <- 1.15
 
-xx1 <- log(10*m.at$a)
-yy1 <- log(m.at$nmin)
+xx1 <- log(10*m.rt$a)
+yy1 <- log(m.rt$nmin)
 spl1 <- smooth.spline(x = xx1, y = yy1, spar = spar, tol = .0001)
 
-xx2 <- log(10*m.as$a)
-yy2 <- log(m.as$nmin)
+xx2 <- log(10*m.rs$a)
+yy2 <- log(m.rs$nmin)
 spl2 <- smooth.spline(x = xx2, y = yy2, spar = spar, tol = .0001)
 
-xx3 <- log(10*m.ah$a)
-yy3 <- log(m.ah$nmin)
+xx3 <- log(10*m.rh$a)
+yy3 <- log(m.rh$nmin)
 spl3 <- smooth.spline(x = xx3, y = yy3, spar = spar, tol = .0001)
-
-png("Fig6.png", height = 800, width = 1200)
-opar <- par(cex = 2, mar = c(4, 4.2, 0.5, 0.5))
 
 plot(exp(spl1$x), exp(spl1$y), log = "xy", 
      type = "n", xlab = "L", ylab = expression(n[min]))
@@ -195,75 +191,9 @@ legend("bottomleft", legend = c("tree layer", "shrub layer", "herb layer"), hori
 
 #--- analysis of scaling of a dominant species ---#
 
-# modify basic function to store full vectors of relative abundances
-
-compute.moments.lin <- function(ab, q)
-{
-  ab <- as.matrix(ab)
-  n <- dim(ab)[1]  # nr of samples
-  nn <- sum(1:n)  # nr of cells
-  
-  m <- qD <- matrix(0, nrow = nn, ncol = length(q))
-  pp <- matrix(0, nrow = nn, ncol = dim(ab)[2])
-  a <- rep(0, nn)
-  H <- rep(0, nn)
-  pmin <- nmin <- rep(0, nn)
-  
-  counter <- 1
-  for (ii in 1:(n-1))
-  {
-    for (jj in 1:(n-ii+1))
-    {
-      aa <- ab[jj:(jj+ii-1), ]
-      
-      if (is.matrix(aa))
-      {
-        aa <- colSums(aa)
-      }
-      if (sum(aa) > 0)
-      {
-        p <- aa/sum(aa)
-        
-        pp[counter,] <- p
-        
-        m[counter,] <- mom(p,q)
-        a[counter] <- ii
-        H[counter] <- shannon(p)
-        pmin[counter] <- min(p[p > 0])
-        nmin[counter] <- min(aa[aa > 0])
-        counter <- counter + 1
-      }
-    }
-  }
-  
-  aa <- colSums(ab)
-  p <- aa/sum(aa)
-  
-  pp[counter, ] <- p
-  
-  m[counter,] <- mom(p,q)
-  a[counter] <- n
-  H[counter] <- shannon(p)
-  pmin[counter] <- min(p[p > 0])
-  nmin[counter] <- min(aa[aa > 0])
-  
-  qD <- m ^ (1/(1-matrix(q, nrow = dim(m)[1], ncol = dim(m)[2], byrow = T)))
-  qD[, q == 1] <- exp(H)
-  
-  return(list(mom = m[1:counter, ], H = H[1:counter], qD = qD[1:counter, ], 
-              a = a[1:counter], q = q, pmin = pmin[1:counter], nmin = nmin[1:counter],
-              pp = pp[1:counter, ]))
-}
-
-load("D:/YandexDisk/Science/2016/China/R/ank-tree.rda")
-rm(sc, sh, tc, th)
-ta <- ta[-51, ]
-
-
-m.at <- compute.moments.lin(ta, q = seq(-3,3,.1))
-
-xx <- log(10*m.at$a[m.at$pp[, 2] > 0])
-yy <- log(m.at$pp[m.at$pp[, 2] > 0, 2])
+# Figure 8
+xx <- log(10*m.rt$a[m.rt$pp[, 2] > 0])
+yy <- log(m.rt$pp[m.rt$pp[, 2] > 0, 2])
 
 spl1 <- smooth.spline(x = xx, y = yy, spar = 1.15, tol = .0001)
 
