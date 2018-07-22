@@ -97,7 +97,7 @@ mfl.ds <- local.spectra(m.ds, sc = exp(1:4), smooth = 1.15)
 mfl.dh <- local.spectra(m.dh, sc = exp(1:4), smooth = 1.15)
 mfl.dh <- trunc.spectra(local.spectra(m.dh, sc = exp(1:4), smooth = 1.15))
 
-#---#
+#--- local multifractal spectra plots ---#
 
 # Figure 6a
 plot(mfl.at$alfa[,1], mfl.at$f[,1], type = "o", pch = 21, bg = "white", 
@@ -161,4 +161,112 @@ abline(h = 0, v = 0)
 abline(v = 1, lty = 2)
 title(main = "Mountain forest - herb layer", line = 0.25)
 
-#---#
+#--- analysis of minimal abundance scaling ---#
+
+# Figure 7
+spar <- 1.15
+
+xx1 <- log(10*m.at$a)
+yy1 <- log(m.at$nmin)
+spl1 <- smooth.spline(x = xx1, y = yy1, spar = spar, tol = .0001)
+
+xx2 <- log(10*m.as$a)
+yy2 <- log(m.as$nmin)
+spl2 <- smooth.spline(x = xx2, y = yy2, spar = spar, tol = .0001)
+
+xx3 <- log(10*m.ah$a)
+yy3 <- log(m.ah$nmin)
+spl3 <- smooth.spline(x = xx3, y = yy3, spar = spar, tol = .0001)
+
+png("Fig6.png", height = 800, width = 1200)
+opar <- par(cex = 2, mar = c(4, 4.2, 0.5, 0.5))
+
+plot(exp(spl1$x), exp(spl1$y), log = "xy", 
+     type = "n", xlab = "L", ylab = expression(n[min]))
+
+abline(v = 10*exp(1:4), col = c("grey", "red", "blue", "black"))
+
+lines(exp(spl1$x), exp(spl1$y), lwd = 3, col = "darkred")
+lines(exp(spl2$x), exp(spl2$y), lwd = 3, col = "darkgreen")
+lines(exp(spl3$x), exp(spl3$y), lwd = 3, col = "darkblue")
+
+legend("bottomleft", legend = c("tree layer", "shrub layer", "herb layer"), horiz = T,
+       lwd = 3, col  = c("darkred", "darkgreen", "darkblue"))
+
+#--- analysis of scaling of a dominant species ---#
+
+# modify basic function to store full vectors of relative abundances
+
+compute.moments.lin <- function(ab, q)
+{
+  ab <- as.matrix(ab)
+  n <- dim(ab)[1]  # nr of samples
+  nn <- sum(1:n)  # nr of cells
+  
+  m <- qD <- matrix(0, nrow = nn, ncol = length(q))
+  pp <- matrix(0, nrow = nn, ncol = dim(ab)[2])
+  a <- rep(0, nn)
+  H <- rep(0, nn)
+  pmin <- nmin <- rep(0, nn)
+  
+  counter <- 1
+  for (ii in 1:(n-1))
+  {
+    for (jj in 1:(n-ii+1))
+    {
+      aa <- ab[jj:(jj+ii-1), ]
+      
+      if (is.matrix(aa))
+      {
+        aa <- colSums(aa)
+      }
+      if (sum(aa) > 0)
+      {
+        p <- aa/sum(aa)
+        
+        pp[counter,] <- p
+        
+        m[counter,] <- mom(p,q)
+        a[counter] <- ii
+        H[counter] <- shannon(p)
+        pmin[counter] <- min(p[p > 0])
+        nmin[counter] <- min(aa[aa > 0])
+        counter <- counter + 1
+      }
+    }
+  }
+  
+  aa <- colSums(ab)
+  p <- aa/sum(aa)
+  
+  pp[counter, ] <- p
+  
+  m[counter,] <- mom(p,q)
+  a[counter] <- n
+  H[counter] <- shannon(p)
+  pmin[counter] <- min(p[p > 0])
+  nmin[counter] <- min(aa[aa > 0])
+  
+  qD <- m ^ (1/(1-matrix(q, nrow = dim(m)[1], ncol = dim(m)[2], byrow = T)))
+  qD[, q == 1] <- exp(H)
+  
+  return(list(mom = m[1:counter, ], H = H[1:counter], qD = qD[1:counter, ], 
+              a = a[1:counter], q = q, pmin = pmin[1:counter], nmin = nmin[1:counter],
+              pp = pp[1:counter, ]))
+}
+
+load("D:/YandexDisk/Science/2016/China/R/ank-tree.rda")
+rm(sc, sh, tc, th)
+ta <- ta[-51, ]
+
+
+m.at <- compute.moments.lin(ta, q = seq(-3,3,.1))
+
+xx <- log(10*m.at$a[m.at$pp[, 2] > 0])
+yy <- log(m.at$pp[m.at$pp[, 2] > 0, 2])
+
+spl1 <- smooth.spline(x = xx, y = yy, spar = 1.15, tol = .0001)
+
+plot(exp(xx), exp(yy), pch = 19, col = rgb(.5,.6,.1,.5), xlab = "L", 
+     ylab = expression(p[Acer]), ylim = range(exp(yy)), log = "xy")
+lines(exp(spl1$x), exp(spl1$y), lwd = 3, col = "darkgreen")
