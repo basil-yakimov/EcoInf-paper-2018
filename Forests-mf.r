@@ -7,7 +7,7 @@ library(readxl)
 # r is for russian plain forest, tsh stands for tree, shrub and herb layers respectively
 rt <- t(read_excel("Forest_data.xlsx", sheet = 1, range = "B2:CW12", col_names = F))
 rs <- t(read_excel("Forest_data.xlsx", sheet = 2, range = "B2:CW11", col_names = F))
-rh <- t(read_excel("Forest_data.xlsx", sheet = 3, range = "B2:CW44", col_names = F))
+rh <- t(read_excel("Forest_data.xlsx", sheet = 3, range = "B2:CW43", col_names = F))
 
 # compute moments with a linear scheme
 m.rt <- compute.moments.lin(rt, q = seq(-3, 3, .1))
@@ -81,9 +81,9 @@ cs <- t(read_excel("Forest_data.xlsx", sheet = 5, range = "B2:CS42", col_names =
 ch <- t(read_excel("Forest_data.xlsx", sheet = 6, range = "B2:CS194", col_names = F))
 
 # compute moments
-m.ct <- compute.moments.lin(ta, q = seq(-3,3,.1))
-m.cs <- compute.moments.lin(sa, q = seq(-3,3,.1))
-m.ch <- compute.moments.lin(hc, q = seq(-3,3,.1))
+m.ct <- compute.moments.lin(ct, q = seq(-3,3,.1))
+m.cs <- compute.moments.lin(cs, q = seq(-3,3,.1))
+m.ch <- compute.moments.lin(ch, q = seq(-3,3,.1))
 
 #---#
 
