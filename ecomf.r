@@ -47,7 +47,7 @@ derv <- function(vec,h)
 }
 
 #' A function to compute moments with a linear transect
-#' @param ab vector of abundances
+#' @param ab matrix of abundances
 #' @param q vector of orders
 
 compute.moments.lin <- function(ab, q)
